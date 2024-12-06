@@ -1,0 +1,82 @@
+# Xcode
+DerivedData/
+.idea/
+xcuserdata/
+*.xcworkspace/
+*.xcodeproj/project.xcworkspace/
+
+# Swift Package Manager
+.build/
+Package.resolved
+
+# Cocoapods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Flutter
+flutter_export_environment.sh
+
+# Bundler
+.bundle/
+
+# SPM-related
+*.swiftpm/
+
+# Archives
+*.xcarchive
+
+# Build artifacts
+build/
+*.app/
+*.ipa/
+*.dSYM.zip
+*.dSYM
+
+# Code coverage
+*.xccovarchive
+*.xccovreport
+
+# Playground
+timeline.xctimeline
+playground.xcworkspace
+
+# Logs
+*.log
+*.history
+
+# Temporary files
+*.swp
+*.swo
+*.tmp
+*.DS_Store
+*.swp
+*.swo
+*.tmp
+
+# Editor files
+*.swm
+*.bak
+*.tmp
+*.orig
+*.class
+
+# System files
+Icon?
+Thumbs.db
+.DS_Store
+._*
+
+# macOS
+*.plist
+*.spotlight-v100
+*.Trashes
+*.VolumeIcon.icns
