@@ -1,4 +1,6 @@
 
+
+
 import Foundation
 import UIKit
 import FirebaseAuth
@@ -6,7 +8,7 @@ import FirebaseFirestore
 
 class MyProfileViewController: BaseViewController {
     
-    private let profileImageView = ImageView(imagetitle: "logo", imagecolor: .blue)
+    private let profileImageView = ImageView(imagecolor: .blue)
     private let nameLabel = Label(texttitle: "Name", textcolor: .black, font: .systemFont(ofSize: 26), numOflines: 0, textalignment: .center)
     private let updateButton = ButtonWithLabel(title: "My Communities", font: .systemFont(ofSize: 14), backgroundColor: .yellow, titlecolor: .black, cornerRadius: 10)
     private let logoutButton = ButtonWithLabel(title: "Logout", font: .systemFont(ofSize: 14), backgroundColor: .yellow, titlecolor: .black, cornerRadius: 10)
@@ -14,19 +16,19 @@ class MyProfileViewController: BaseViewController {
     private let aboutLabel = Label(texttitle: "About", textcolor: .black, font: .systemFont(ofSize: 24), numOflines: 0, textalignment: .left)
     
     private let phoneImage = ImageView(systemName: "phone", imagecolor: .black)
-    private let phoneLabel = Label(texttitle: "03388473222", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let phoneLabel = Label(texttitle: "Phone", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let mailImage = ImageView(systemName: "mail", imagecolor: .black)
-    private let mailLabel = Label(texttitle: "ali@gmail.com", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let mailLabel = Label(texttitle: "Email", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let linkImage = ImageView(systemName: "link", imagecolor: .black)
-    private let linkLabel = Label(texttitle: "http://kajsckjasnkcnas", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let linkLabel = Label(texttitle: "Work Link", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let descriptionHeadingLabel = Label(texttitle: "Description", textcolor: .black, font: .systemFont(ofSize: 22), numOflines: 0, textalignment: .left)
-    private let descriptiontText = Label(texttitle: "jkahckjhakjhclkjalcjklasjncklasnlkcnasklncklasnlkcnaslkncklasncklasnlkcnlsnjnorevokporkeo", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let descriptiontText = Label(texttitle: "Description Text", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let acheivementsHeadingLabel = Label(texttitle: "Achievements", textcolor: .black, font: .systemFont(ofSize: 22), numOflines: 0, textalignment: .left)
-    private let acheivementsText = Label(texttitle: "lksdjnvlinwvknkjnjkvnkjsdnkjvndskjnvkjdsnvkljdsnkjvndsjknvkjsdnvjksndkjvnskjdnvjknewn;nvn;", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let acheivementsText = Label(texttitle: "Achievements Text", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +54,7 @@ class MyProfileViewController: BaseViewController {
                 self.showAlert(message: error.localizedDescription)
             }
         }
+        updateButton.addTarget(self, action: #selector(showMyCommunities), for: .touchUpInside)
     }
     
     override func setupViews() {
@@ -136,7 +139,6 @@ class MyProfileViewController: BaseViewController {
             switch result {
             case .success:
                 print("User successfully logged out.")
-                // Navigate to the login screen
                 self.navigationController?.popToRootViewController(animated: true)
             case .failure(let error):
                 print("Failed to log out: \(error.localizedDescription)")
@@ -144,17 +146,19 @@ class MyProfileViewController: BaseViewController {
             }
         }
     }
+    
     func logout(completion: @escaping (Result<Void, Error>) -> Void) {
         self.showLoader()
         do {
             try Auth.auth().signOut()
             self.hideLoader()
-            completion(.success(())) // Successfully logged out
+            completion(.success(()))
         } catch let error {
             self.hideLoader()
-            completion(.failure(error)) // Return the error if logout fails
+            completion(.failure(error))
         }
     }
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -167,56 +171,73 @@ extension MyProfileViewController {
     func fetchProfileData(completion: @escaping (Result<[String: Any], Error>) -> Void) {
         let db = Firestore.firestore()
         self.showLoader()
-        // Replace `userID` with the actual ID of the document for the user
         guard let userID = Auth.auth().currentUser?.uid else {
             completion(.failure(NSError(domain: "User ID not found", code: 401, userInfo: nil)))
             return
         }
         
-        db.collection("users") // Adjust the collection name based on your Firestore structure
+        db.collection("users")
             .document(userID)
             .getDocument { (document, error) in
                 if let error = error {
-                    completion(.failure(error)) // Return the error if fetching fails
+                    completion(.failure(error))
                 } else if let document = document, document.exists {
                     if let data = document.data() {
-                        completion(.success(data)) // Return the fetched data
+                        completion(.success(data))
                     } else {
                         completion(.failure(NSError(domain: "Data not found", code: 404, userInfo: nil)))
                     }
                 }
             }
     }
+    
     func updateUI(with data: [String: Any]) {
-        // Personal Details
         if let personalDetails = data["personalDetails"] as? [String: Any] {
             nameLabel.text = "\(personalDetails["firstName"] as? String ?? "") \(personalDetails["lastName"] as? String ?? "")"
             phoneLabel.text = personalDetails["phone"] as? String
             mailLabel.text = personalDetails["email"] as? String
         }
         
-        // DOB
-        if let dob = data["dob"] as? String {
-            print("Date of Birth: \(dob)") // Use this if required in the UI
-        }
-        
-        // Work Details
         if let workDetails = data["workDetails"] as? [String: Any] {
             linkLabel.text = workDetails["workLink"] as? String
             descriptiontText.text = workDetails["description"] as? String
             acheivementsText.text = workDetails["achievements"] as? String
         }
         
-        // Interests Details
-        if let interestsDetails = data["interestsDetails"] as? [String: Any] {
-            print("Interests: \(interestsDetails["interests"] as? String ?? "")")
-        }
-        
-        // Profile Image
-        if let profileImageString = data["profileImage"] as? String,
-           let imageData = Data(base64Encoded: profileImageString),
-           let image = UIImage(data: imageData) {
-            profileImageView.image = image
+        if let profileImageUrl = data["profileImageUrl"] as? String {
+            loadImage(from: profileImageUrl) { [weak self] image in
+                DispatchQueue.main.async {
+                    self?.profileImageView.image = image
+                }
+            }
         }
     }
+    
+    private func loadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            if let data = data, let image = UIImage(data: data) {
+                completion(image)
+            } else {
+                completion(nil)
+            }
+        }.resume()
+    }
+    
+    @objc func showMyCommunities() {
+        let myCommunitiesVC = MyCommunitiesViewController()
+        self.navigationController?.pushViewController(myCommunitiesVC, animated: true)
+    }
+    
+    func displayJoinedCommunities(_ communities: [String]) {
+        let communitiesList = communities.joined(separator: "\n")
+        let alert = UIAlertController(title: "My Communities", message: communitiesList, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 }
+

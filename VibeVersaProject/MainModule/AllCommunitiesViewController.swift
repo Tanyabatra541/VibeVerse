@@ -1,46 +1,26 @@
-
 import Foundation
 import UIKit
+import FirebaseFirestore
 
 class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     let headerView = View(backgroundcolor: .darkBeige, cornerradius: 0)
     let headingLabel = Label(texttitle: "Communities", textcolor: .black, font: .systemFont(ofSize: 28, weight: .bold), numOflines: 1, textalignment: .left)
     private let backButton = ButtonWithImage(systemName: "arrow.backward")
-
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
     
-    private var communities: [Community] = [
-        Community(title: "Graphic Era", description: "Unleash your creativity and join our vibrant community of graphic designers, where ideas ignite and talents flourish"),
-        Community(title: "DesignConnect", description: "Unleash your artistic genius within a thriving community of graphic designers, where inspiration flows and collaborations thrive"),
-        Community(title: "PixelPulse", description: "Unleash your artistic genius within a thriving community of graphic designers, where inspiration flows and collaborations thrive"),
-        Community(title: "Creative Core", description: "Expand your design skills and explore new opportunities"),
-        Community(title: "Design Hub", description: "Collaborate and thrive in a like-minded creative community"),
-        Community(title: "Artistic Minds", description: "Join a collective where artistic minds converge and grow"),
-        Community(title: "ImagineStudio", description: "Where your imagination takes flight in the design world"),
-        Community(title: "Design Sphere", description: "Explore a world of creativity with like-minded designers"),
-        Community(title: "Graphic Guild", description: "Forge connections and grow your skills in this graphic community"),
-        Community(title: "InspireWorks", description: "A space for inspiration and creative work collaborations"),
-        Community(title: "Visionary Creatives", description: "Where visionaries and creators collaborate to inspire"),
-        Community(title: "ArtVista", description: "Explore new artistic horizons with this thriving design community"),
-        Community(title: "SketchBloom", description: "Where sketching skills blossom into full creative artistry"),
-        Community(title: "DesignHive", description: "Buzzing with opportunities to grow and network in design"),
-        Community(title: "Canvas Collective", description: "A gathering place for designers to make their mark"),
-        Community(title: "Creator's Haven", description: "A haven for creators to grow, network, and succeed"),
-        Community(title: "DesignPro Network", description: "A professional community focused on advancing design careers"),
-        Community(title: "Innovate Studio", description: "Push the boundaries of innovation and creativity"),
-        Community(title: "DraftMasters", description: "Masters of design drafts and exceptional creativity")
-    ]
-    
+    private var communities: [Community] = [] // Dynamically fetched from Firestore
     private var filteredCommunities: [Community] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige
         setupUI()
-        filteredCommunities = communities
         backButton.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
+        
+        // Fetch communities from Firebase
+        fetchCommunitiesFromFirebase()
     }
     
     private func setupUI() {
@@ -67,7 +47,6 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
         
         // Layout
         NSLayoutConstraint.activate([
-            
             headerView.topAnchor.constraint(equalTo: view.topAnchor),
             headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -93,12 +72,49 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
+    
     @objc func handleBack() {
         self.navigationController?.popViewController(animated: true)
     }
+    
+    // MARK: - Fetch Communities from Firebase
+    private func fetchCommunitiesFromFirebase() {
+        let db = Firestore.firestore()
+        
+        // Fetch communities collection from Firestore
+        db.collection("communities").getDocuments { [weak self] (snapshot, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Failed to fetch communities: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents else {
+                print("No communities found")
+                return
+            }
+            
+            // Map documents to Community model
+            self.communities = documents.compactMap { document -> Community? in
+                let data = document.data()
+                guard let title = data["title"] as? String,
+                      let description = data["description"] as? String else { return nil }
+                return Community(title: title, description: description)
+            }
+            
+            // Update filtered list and reload table view
+            self.filteredCommunities = self.communities
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
     // MARK: - TableView DataSource & Delegate
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredCommunities.count
@@ -113,6 +129,7 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
         cell.configure(with: community)
         return cell
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 170.autoSized
     }
@@ -153,7 +170,6 @@ class CommunityCell: UITableViewCell {
     }
     
     private func setupUI() {
-        
         contentView.addSubview(cardView)
         cardView.addSubview(titleLabel)
         cardView.addSubview(descriptionLabel)
@@ -179,6 +195,7 @@ class CommunityCell: UITableViewCell {
             joinButton.heightAnchor.constraint(equalToConstant: 40.autoSized),
         ])
     }
+    
     @objc func handleJoinNow() {
         joined.toggle()
         if joined {
@@ -188,11 +205,10 @@ class CommunityCell: UITableViewCell {
             joinButton.backgroundColor = .black
             joinButton.setTitle("Join", for: .normal)
         }
-
     }
+    
     func configure(with community: Community) {
         titleLabel.text = community.title
         descriptionLabel.text = community.description
     }
 }
-

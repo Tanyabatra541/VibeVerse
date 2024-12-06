@@ -13,6 +13,7 @@ struct UsersModel {
     let achievements: String?
     let profileImageUrl: String? // URL for the profile image
     var profileImage: UIImage? // Holds the downloaded profile image (optional)
+    var joinedCommunities: [String] // List of joined communities
     
     init?(dictionary: [String: Any]) {
         // Ensure the ID is present
@@ -39,6 +40,7 @@ struct UsersModel {
         
         self.profileImageUrl = dictionary["profileImageUrl"] as? String
         self.profileImage = nil // Default to nil; fetched asynchronously
+        self.joinedCommunities = dictionary["joinedCommunities"] as? [String] ?? []
     }
     
     func fetchProfileImage(completion: @escaping (UIImage?) -> Void) {
@@ -57,7 +59,3 @@ struct UsersModel {
     }
 }
 
-struct Community {
-    let title: String
-    let description: String
-}
