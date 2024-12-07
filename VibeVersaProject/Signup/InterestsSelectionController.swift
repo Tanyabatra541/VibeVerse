@@ -1,9 +1,12 @@
-
 import Foundation
 import UIKit
+import CoreLocation
 
-class InterestsSelectionController: UIViewController {
+class InterestsSelectionController: UIViewController, CLLocationManagerDelegate {
 
+    private let locationManager = CLLocationManager()
+    private var currentLocation: CLLocation?
+    
     private let backButton = ButtonWithImage(imageName: "back")
     private let titleLabel = Label(texttitle: "Skill Details", textcolor: .black, font: .boldSystemFont(ofSize: 30), numOflines: 1, textalignment: .left)
     private let subtitleLabel = Label(texttitle: "Tell us more about yourself to get personalized recommendations.", textcolor: .black, font: .systemFont(ofSize: 15), numOflines: 0, textalignment: .left)
@@ -64,17 +67,10 @@ class InterestsSelectionController: UIViewController {
     }()
     private lazy var locationButton: ButtonWithImage = {
         let btn = ButtonWithImage(imageName: "location")
+        btn.addTarget(self, action: #selector(locationButtonTapped), for: .touchUpInside)
         return btn
     }()
-
-//    private let locationField = TextField(textTitle: "Location", backgroundcolor: .clear)
-//    private let gpsButton: UIButton = {
-//        let button = UIButton()
-//        button.setImage(UIImage(systemName: "location.fill"), for: .normal)
-//        button.tintColor = .brown
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        return button
-//    }()
+    private let locationLabelValue = Label(texttitle: "Fetching location...", textcolor: .gray, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let nextButton = ButtonWithLabel(title: "Next", backgroundColor: .brown, titlecolor: .white, cornerRadius: 10)
 
@@ -94,6 +90,13 @@ class InterestsSelectionController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .beige
         setupViews()
+        setupLocationManager()
+    }
+    
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
     }
         
     private func setupViews() {
@@ -111,6 +114,7 @@ class InterestsSelectionController: UIViewController {
         view.addSubview(locationLabel)
         view.addSubview(locationView)
         locationView.addSubview(locationButton)
+        locationView.addSubview(locationLabelValue)
         view.addSubview(nextButton)
         view.addSubview(backButton)
         
@@ -118,7 +122,6 @@ class InterestsSelectionController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60.autoSized),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
             
@@ -171,6 +174,9 @@ class InterestsSelectionController: UIViewController {
             locationView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
             locationView.heightAnchor.constraint(equalToConstant: 50.autoSized),
             
+            locationLabelValue.centerYAnchor.constraint(equalTo: locationView.centerYAnchor),
+            locationLabelValue.leadingAnchor.constraint(equalTo: locationView.leadingAnchor, constant: 10),
+
             locationButton.topAnchor.constraint(equalTo: locationView.topAnchor),
             locationButton.trailingAnchor.constraint(equalTo: locationView.trailingAnchor),
             locationButton.bottomAnchor.constraint(equalTo: locationView.bottomAnchor),
@@ -196,14 +202,54 @@ class InterestsSelectionController: UIViewController {
         }
     }
     
+    @objc private func locationButtonTapped() {
+        let status: CLAuthorizationStatus
+        if #available(iOS 14.0, *) {
+            status = locationManager.authorizationStatus
+        } else {
+            status = CLLocationManager.authorizationStatus()
+        }
+
+        switch status {
+        case .notDetermined:
+            // Request permission
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted, .denied:
+            // Show an alert to guide the user to settings
+            showLocationPermissionAlert()
+        case .authorizedWhenInUse, .authorizedAlways:
+            // Fetch the location
+            locationManager.requestLocation()
+        @unknown default:
+            break
+        }
+    }
+    
+    private func showLocationPermissionAlert() {
+        let alert = UIAlertController(
+            title: "Location Permission Required",
+            message: "Please enable location access in Settings to fetch your current location.",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Open Settings", style: .default) { _ in
+            if let appSettingsURL = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(appSettingsURL)
+            }
+        })
+        present(alert, animated: true)
+    }
+    
+
+
     @objc private func subtractButtonTapped() {
-            experienceValue -= 1
+        experienceValue -= 1
     }
 
     @objc private func addButtonTapped() {
         experienceValue += 1
     }
-//
+
     @objc func backButtonTapped() {
         self.navigationController?.popViewController(animated: true)
     }
@@ -211,6 +257,22 @@ class InterestsSelectionController: UIViewController {
     @objc func nextButtonTapped() {
         let data = SignupInterestsDetailsModel(interests: helpDropdown.selectedOptions.joined(separator: ", "), goodAtThings: goodAtDropdown.selectedOptions.joined(separator: ", "), experience: experienceValueLabel.text ?? "")
         self.navigationController?.pushViewController(PersonalWorkRelatedDetailsController(signupPersonalDetails: personalDetailsModel, signupInterestsDetails: data, dob: dob ?? ""), animated: true)
-        // Handle next button actions
     }
+    
+    // MARK: - CLLocationManagerDelegate
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.first {
+            self.currentLocation = location
+            let latitude = location.coordinate.latitude
+            let longitude = location.coordinate.longitude
+            locationLabelValue.text = "Lat: \(latitude), Long: \(longitude)"
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Failed to fetch location: \(error.localizedDescription)")
+        locationLabelValue.text = "Failed to fetch location"
+    }
+    
+    
 }
