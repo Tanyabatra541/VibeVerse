@@ -34,7 +34,7 @@
 		18C1F68D2CFCB02700075846 /* AddDobController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F68C2CFCB02700075846 /* AddDobController.swift */; };
 		18C1F6902CFCE7A800075846 /* InterestsSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F68F2CFCE7A800075846 /* InterestsSelectionController.swift */; };
 		18C1F6922CFCE8DD00075846 /* DropDownField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6912CFCE8DD00075846 /* DropDownField.swift */; };
-		18C1F6942CFE0C7C00075846 /* CheclistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6932CFE0C7C00075846 /* CheclistViewController.swift */; };
+		18C1F6942CFE0C7C00075846 /* ChecklistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6932CFE0C7C00075846 /* ChecklistViewController.swift */; };
 		18C1F6962CFE12CA00075846 /* TextViewWithPlaceholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6952CFE12CA00075846 /* TextViewWithPlaceholder.swift */; };
 		18C1F6982CFE133B00075846 /* PersonalWorkRelatedDetailsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6972CFE133B00075846 /* PersonalWorkRelatedDetailsController.swift */; };
 		18C1F69A2CFE1AAF00075846 /* UploadProfilePictureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F6992CFE1AAF00075846 /* UploadProfilePictureController.swift */; };
@@ -79,7 +79,7 @@
 		18C1F68C2CFCB02700075846 /* AddDobController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDobController.swift; sourceTree = "<group>"; };
 		18C1F68F2CFCE7A800075846 /* InterestsSelectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterestsSelectionController.swift; sourceTree = "<group>"; };
 		18C1F6912CFCE8DD00075846 /* DropDownField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownField.swift; sourceTree = "<group>"; };
-		18C1F6932CFE0C7C00075846 /* CheclistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheclistViewController.swift; sourceTree = "<group>"; };
+		18C1F6932CFE0C7C00075846 /* ChecklistViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistViewController.swift; sourceTree = "<group>"; };
 		18C1F6952CFE12CA00075846 /* TextViewWithPlaceholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPlaceholder.swift; sourceTree = "<group>"; };
 		18C1F6972CFE133B00075846 /* PersonalWorkRelatedDetailsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalWorkRelatedDetailsController.swift; sourceTree = "<group>"; };
 		18C1F6992CFE1AAF00075846 /* UploadProfilePictureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadProfilePictureController.swift; sourceTree = "<group>"; };
@@ -216,7 +216,7 @@
 				18C1F68F2CFCE7A800075846 /* InterestsSelectionController.swift */,
 				18C1F6972CFE133B00075846 /* PersonalWorkRelatedDetailsController.swift */,
 				18C1F6992CFE1AAF00075846 /* UploadProfilePictureController.swift */,
-				18C1F6932CFE0C7C00075846 /* CheclistViewController.swift */,
+				18C1F6932CFE0C7C00075846 /* ChecklistViewController.swift */,
 			);
 			path = Signup;
 			sourceTree = "<group>";
@@ -373,7 +373,7 @@
 				A057F27B2D03B96D00AD0682 /* Community.swift in Sources */,
 				184532E82D001F6600B4063C /* HomeViewController.swift in Sources */,
 				18C1F69A2CFE1AAF00075846 /* UploadProfilePictureController.swift in Sources */,
-				18C1F6942CFE0C7C00075846 /* CheclistViewController.swift in Sources */,
+				18C1F6942CFE0C7C00075846 /* ChecklistViewController.swift in Sources */,
 				A0A4B6B92D03A38C000EACBA /* AllCommunitiesViewController.swift in Sources */,
 				18C1F6682CFC9E5E00075846 /* LandingPageController.swift in Sources */,
 				18C1F6642CFC9E5E00075846 /* AppDelegate.swift in Sources */,
