@@ -1,12 +1,12 @@
-
-
-
 import Foundation
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
 class MyProfileViewController: BaseViewController {
+    
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     
     private let profileImageView = ImageView(imagecolor: .blue)
     private let nameLabel = Label(texttitle: "Name", textcolor: .black, font: .systemFont(ofSize: 26), numOflines: 0, textalignment: .center)
@@ -58,33 +58,49 @@ class MyProfileViewController: BaseViewController {
     }
     
     override func setupViews() {
-        view.addSubview(profileImageView)
-        view.addSubview(nameLabel)
-        view.addSubview(updateButton)
-        view.addSubview(logoutButton)
-        view.addSubview(aboutLabel)
-        view.addSubview(phoneImage)
-        view.addSubview(phoneLabel)
-        view.addSubview(mailImage)
-        view.addSubview(mailLabel)
-        view.addSubview(linkImage)
-        view.addSubview(linkLabel)
-        view.addSubview(descriptionHeadingLabel)
-        view.addSubview(descriptiontText)
-        view.addSubview(acheivementsHeadingLabel)
-        view.addSubview(acheivementsText)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(profileImageView)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(updateButton)
+        contentView.addSubview(logoutButton)
+        contentView.addSubview(aboutLabel)
+        contentView.addSubview(phoneImage)
+        contentView.addSubview(phoneLabel)
+        contentView.addSubview(mailImage)
+        contentView.addSubview(mailLabel)
+        contentView.addSubview(linkImage)
+        contentView.addSubview(linkLabel)
+        contentView.addSubview(descriptionHeadingLabel)
+        contentView.addSubview(descriptiontText)
+        contentView.addSubview(acheivementsHeadingLabel)
+        contentView.addSubview(acheivementsText)
         
         super.setupViews()
         
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            profileImageView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 40.autoSized),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            profileImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            profileImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 40.autoSized),
             profileImageView.heightAnchor.constraint(equalToConstant: 130.autoSized),
             profileImageView.widthAnchor.constraint(equalToConstant: 130.autoSized),
             
             nameLabel.leadingAnchor.constraint(equalTo: profileImageView.trailingAnchor, constant: 20.widthRatio),
-            nameLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 50.autoSized),
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 50.autoSized),
             
             updateButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 10.autoSized),
             updateButton.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
@@ -96,22 +112,22 @@ class MyProfileViewController: BaseViewController {
             logoutButton.heightAnchor.constraint(equalToConstant: 30.autoSized),
             logoutButton.widthAnchor.constraint(equalToConstant: 200.widthRatio),
             
-            aboutLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            aboutLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             aboutLabel.topAnchor.constraint(equalTo: logoutButton.bottomAnchor, constant: 60.autoSized),
             
-            phoneImage.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            phoneImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             phoneImage.topAnchor.constraint(equalTo: aboutLabel.bottomAnchor, constant: 20.autoSized),
             
             phoneLabel.centerYAnchor.constraint(equalTo: phoneImage.centerYAnchor),
             phoneLabel.leadingAnchor.constraint(equalTo: phoneImage.trailingAnchor, constant: 10.widthRatio),
             
-            mailImage.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            mailImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             mailImage.topAnchor.constraint(equalTo: phoneImage.bottomAnchor, constant: 10.autoSized),
             
             mailLabel.centerYAnchor.constraint(equalTo: mailImage.centerYAnchor),
             mailLabel.leadingAnchor.constraint(equalTo: mailImage.trailingAnchor, constant: 10.widthRatio),
             
-            linkImage.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor),
+            linkImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             linkImage.topAnchor.constraint(equalTo: mailImage.bottomAnchor, constant: 10.autoSized),
             
             linkLabel.centerYAnchor.constraint(equalTo: linkImage.centerYAnchor),
@@ -121,16 +137,16 @@ class MyProfileViewController: BaseViewController {
             descriptionHeadingLabel.leadingAnchor.constraint(equalTo: aboutLabel.leadingAnchor),
             
             descriptiontText.leadingAnchor.constraint(equalTo: descriptionHeadingLabel.leadingAnchor),
-            descriptiontText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30.widthRatio),
+            descriptiontText.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30.widthRatio),
             descriptiontText.topAnchor.constraint(equalTo: descriptionHeadingLabel.bottomAnchor, constant: 20.autoSized),
             
             acheivementsHeadingLabel.topAnchor.constraint(equalTo: descriptiontText.bottomAnchor, constant: 30.autoSized),
             acheivementsHeadingLabel.leadingAnchor.constraint(equalTo: aboutLabel.leadingAnchor),
             
             acheivementsText.leadingAnchor.constraint(equalTo: descriptionHeadingLabel.leadingAnchor),
-            acheivementsText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30.widthRatio),
+            acheivementsText.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -30.widthRatio),
             acheivementsText.topAnchor.constraint(equalTo: acheivementsHeadingLabel.bottomAnchor, constant: 20.autoSized),
-            
+            acheivementsText.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20.autoSized),
         ])
     }
     
@@ -165,7 +181,6 @@ class MyProfileViewController: BaseViewController {
         present(alert, animated: true)
     }
 }
-
 //MARK: Firebase
 extension MyProfileViewController {
     func fetchProfileData(completion: @escaping (Result<[String: Any], Error>) -> Void) {
