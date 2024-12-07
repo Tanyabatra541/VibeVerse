@@ -5,7 +5,13 @@ class LandingPageController: UIViewController {
 
     private let logoImageView = ImageView(imagetitle: "logo", imagecolor: .clear)
     private let titleLabel = ImageView(imagetitle: "logoLabel", imagecolor: .clear)
-    private let subtitleLabel = Label(texttitle: "Unlock a world of limitless skills and knowledge with our free skill sharing app!", textcolor: .black, font: .systemFont(ofSize: 15), numOflines: 0, textalignment: .center)
+    private let subtitleLabel = Label(
+        texttitle: "Unlock a world of limitless skills and knowledge with our skill sharing app!",
+        textcolor: .black,
+        font: .boldSystemFont(ofSize: 15),
+        numOflines: 0,
+        textalignment: .center
+    )
     private let joinButton = ButtonWithLabel(title: "Join Now", backgroundColor: .brown, titlecolor: .white, cornerRadius: 10)
     private let loginLabel = Label(texttitle: "Already have an account?", textcolor: .brown, font: .systemFont(ofSize: 16), numOflines: 1, textalignment: .center)
     private let loginButtonLabel = Label(texttitle: "Login", textcolor: .black, font: .systemFont(ofSize: 16), numOflines: 0, textalignment: .left)

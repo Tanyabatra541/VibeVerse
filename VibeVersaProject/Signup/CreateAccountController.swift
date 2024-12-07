@@ -1,17 +1,38 @@
-
 import Foundation
 import UIKit
 
-class CreateAccountController: UIViewController {
+class CreateAccountController: UIViewController, UITextFieldDelegate {
 
     private let backButton = ButtonWithImage(imageName: "back")
     private let titleLabel = Label(texttitle: "Create account", textcolor: .black, font: .boldSystemFont(ofSize: 30), numOflines: 1, textalignment: .left)
     private let subtitleLabel = Label(texttitle: "Create an account and enjoy a world of learning and connections.", textcolor: .black, font: .systemFont(ofSize: 15), numOflines: 0, textalignment: .left)
-    private let firstNameField = TextField(textTitle: "First Name", backgroundcolor: .clear)
-    private let lastNameField = TextField(textTitle: "Last Name", backgroundcolor: .clear)
-    private let phoneField = TextField(textTitle: "Phone", backgroundcolor: .clear)
-    private let emailField = TextField(textTitle: "Email", backgroundcolor: .clear)
-    private let passwordField = TextField(textTitle: "Password", backgroundcolor: .clear)
+    private let firstNameField: TextField = {
+        let textField = TextField(textTitle: "First Name", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        return textField
+    }()
+    private let lastNameField: TextField = {
+        let textField = TextField(textTitle: "Last Name", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        return textField
+    }()
+    private let phoneField: TextField = {
+        let textField = TextField(textTitle: "Phone", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        textField.keyboardType = .numberPad // Set keyboard type to number pad
+        return textField
+    }()
+    private let emailField: TextField = {
+        let textField = TextField(textTitle: "Email", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        return textField
+    }()
+    private let passwordField: TextField = {
+        let textField = TextField(textTitle: "Password", backgroundcolor: .clear)
+        textField.isSecureTextEntry = true // Hide the password
+        textField.autocapitalizationType = .none
+        return textField
+    }()
     private let continueButton = ButtonWithLabel(title: "Continue", backgroundColor: .brown, titlecolor: .white, cornerRadius: 10)
     private let loginLabel = Label(texttitle: "Already have an account?", textcolor: .brown, font: .systemFont(ofSize: 16), numOflines: 1, textalignment: .center)
     private let loginButtonLabel = Label(texttitle: "Login", textcolor: .black, font: .systemFont(ofSize: 16), numOflines: 0, textalignment: .left)
@@ -32,10 +53,13 @@ class CreateAccountController: UIViewController {
         emailField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
         passwordField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
         
+        phoneField.delegate = self // Set the delegate for filtering input
     }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
+
     private func setupViews() {
         view.addSubview(backButton)
         view.addSubview(titleLabel)
@@ -97,6 +121,7 @@ class CreateAccountController: UIViewController {
             loginButtonLabel.topAnchor.constraint(equalTo: loginLabel.topAnchor),
         ])
     }
+
     func enableDisableButton() {
         if firstNameField.text!.count < 2 || phoneField.text!.count < 4 || emailField.text!.count < 6 || passwordField.text!.count < 3 {
             continueButton.alpha = 0.3
@@ -106,17 +131,33 @@ class CreateAccountController: UIViewController {
             continueButton.isUserInteractionEnabled = true
         }
     }
+
     @objc func editingDidChangedForTextField(textField: UITextField) {
         enableDisableButton()
     }
+
     @objc func backButtonTapped() {
         self.navigationController?.popViewController(animated: true)
     }
+
     @objc func continueButtonTapped() {
         let data = SignupPersonalDetailsModel(firstName: firstNameField.text ?? "", lastName: lastNameField.text ?? "", phone: phoneField.text ?? "", email: emailField.text ?? "", password: passwordField.text ?? "")
         self.navigationController?.pushViewController(AddDobController(signupPersonalDetails: data), animated: true)
     }
+
     @objc func handleLoginTapped() {
         self.navigationController?.pushViewController(LoginViewController(), animated: true)
     }
+
+    // MARK: - UITextFieldDelegate
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if textField == phoneField {
+            // Allow only numbers in phoneField
+            let allowedCharacters = CharacterSet.decimalDigits
+            let characterSet = CharacterSet(charactersIn: string)
+            return allowedCharacters.isSuperset(of: characterSet)
+        }
+        return true
+    }
 }
+
