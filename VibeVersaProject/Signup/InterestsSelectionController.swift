@@ -4,6 +4,8 @@ import CoreLocation
 
 class InterestsSelectionController: UIViewController, CLLocationManagerDelegate {
 
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let locationManager = CLLocationManager()
     private var currentLocation: CLLocation?
     
@@ -86,58 +88,74 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige
+        setupScrollView()
         setupViews()
         setupLocationManager()
     }
     
-    private func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
+    private func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
     }
         
     private func setupViews() {
-        view.addSubview(titleLabel)
-        view.addSubview(subtitleLabel)
-        view.addSubview(helpLabel)
-        view.addSubview(helpDropdown)
-        view.addSubview(goodAtLabel)
-        view.addSubview(goodAtDropdown)
-        view.addSubview(experienceLabel)
-        view.addSubview(experienceLabelView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(subtitleLabel)
+        contentView.addSubview(helpLabel)
+        contentView.addSubview(helpDropdown)
+        contentView.addSubview(goodAtLabel)
+        contentView.addSubview(goodAtDropdown)
+        contentView.addSubview(experienceLabel)
+        contentView.addSubview(experienceLabelView)
         experienceLabelView.addSubview(subtractButton)
         experienceLabelView.addSubview(addButton)
         experienceLabelView.addSubview(experienceValueLabel)
-        view.addSubview(locationLabel)
-        view.addSubview(locationView)
+        contentView.addSubview(locationLabel)
+        contentView.addSubview(locationView)
         locationView.addSubview(locationButton)
         locationView.addSubview(locationLabelValue)
-        view.addSubview(nextButton)
-        view.addSubview(backButton)
+        contentView.addSubview(nextButton)
+        contentView.addSubview(backButton)
         
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 60.autoSized),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 60.autoSized),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10.autoSized),
-            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            subtitleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             
-            helpLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            helpLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             helpLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40.autoSized),
 
             helpDropdown.topAnchor.constraint(equalTo: helpLabel.bottomAnchor, constant: 10.autoSized),
-            helpDropdown.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            helpDropdown.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            helpDropdown.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            helpDropdown.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             helpDropdown.heightAnchor.constraint(equalToConstant: 50.autoSized),
             
-            goodAtLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            goodAtLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             goodAtLabel.topAnchor.constraint(equalTo: helpDropdown.bottomAnchor, constant: 20.autoSized),
             
             goodAtDropdown.topAnchor.constraint(equalTo: goodAtLabel.bottomAnchor, constant: 10.autoSized),
@@ -145,12 +163,12 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
             goodAtDropdown.trailingAnchor.constraint(equalTo: helpDropdown.trailingAnchor),
             goodAtDropdown.heightAnchor.constraint(equalTo: helpDropdown.heightAnchor),
             
-            experienceLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            experienceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             experienceLabel.topAnchor.constraint(equalTo: goodAtDropdown.bottomAnchor, constant: 20.autoSized),
             
             experienceLabelView.topAnchor.constraint(equalTo: experienceLabel.bottomAnchor, constant: 10.autoSized),
-            experienceLabelView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            experienceLabelView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            experienceLabelView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            experienceLabelView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             experienceLabelView.heightAnchor.constraint(equalToConstant: 50.autoSized),
             
             subtractButton.topAnchor.constraint(equalTo: experienceLabelView.topAnchor),
@@ -166,12 +184,12 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
             experienceValueLabel.centerXAnchor.constraint(equalTo: experienceLabelView.centerXAnchor),
             experienceValueLabel.centerYAnchor.constraint(equalTo: experienceLabelView.centerYAnchor),
             
-            locationLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            locationLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
             locationLabel.topAnchor.constraint(equalTo: experienceLabelView.bottomAnchor, constant: 20.autoSized),
             
             locationView.topAnchor.constraint(equalTo: locationLabel.bottomAnchor, constant: 10.autoSized),
-            locationView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            locationView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            locationView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            locationView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             locationView.heightAnchor.constraint(equalToConstant: 50.autoSized),
             
             locationLabelValue.centerYAnchor.constraint(equalTo: locationView.centerYAnchor),
@@ -183,12 +201,14 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
             locationButton.widthAnchor.constraint(equalTo: locationView.heightAnchor),
 
             nextButton.topAnchor.constraint(equalTo: locationView.bottomAnchor, constant: 40.autoSized),
-            nextButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20.widthRatio),
+            nextButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20.widthRatio),
             nextButton.widthAnchor.constraint(equalToConstant: 100.widthRatio),
             nextButton.heightAnchor.constraint(equalToConstant: 50.autoSized),
             
             backButton.centerYAnchor.constraint(equalTo: nextButton.centerYAnchor),
             backButton.trailingAnchor.constraint(equalTo: nextButton.leadingAnchor, constant: -16.widthRatio),
+            
+            backButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20.autoSized)
         ])
     }
     
@@ -239,8 +259,6 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
         })
         present(alert, animated: true)
     }
-    
-
 
     @objc private func subtractButtonTapped() {
         experienceValue -= 1
@@ -252,6 +270,12 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
 
     @objc func backButtonTapped() {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
     }
     
     @objc func nextButtonTapped() {
@@ -273,6 +297,4 @@ class InterestsSelectionController: UIViewController, CLLocationManagerDelegate 
         print("Failed to fetch location: \(error.localizedDescription)")
         locationLabelValue.text = "Failed to fetch location"
     }
-    
-    
 }
