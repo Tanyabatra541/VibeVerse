@@ -42,7 +42,7 @@ class ChatHistoryViewController: BaseViewController {
                     print("No chat history found.")
                     self.showAlert(message: "No chat history found.")
                 }
-                self.chats = chatsData
+                self.chats = chatsData.sorted { $0.2 > $1.2 } // Sort chats by most recent date
                 self.tableView.reloadData()
             case .failure(let error):
                 print("Error fetching chat users: \(error.localizedDescription)")
@@ -137,8 +137,10 @@ extension ChatHistoryViewController {
                 }
 
                 group.notify(queue: .main) {
-                    completion(.success(chatData))
+                    completion(.success(chatData.sorted { $0.2 > $1.2 })) // Sort chats by most recent date
                 }
             }
     }
 }
+
+
