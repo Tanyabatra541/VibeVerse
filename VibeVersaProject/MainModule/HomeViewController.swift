@@ -12,12 +12,21 @@ class HomeViewController: BaseViewController {
         numOflines: 1,
         textalignment: .left
     )
-    private let seeMoreCommunitiesButton = ButtonWithLabel(
-        title: "See more",
-        backgroundColor: .clear,
-        titlecolor: .black,
-        cornerRadius: 0
-    )
+    
+    private let seeMoreCommunitiesButton: UIButton = {
+        let button = ButtonWithLabel(
+            title: "See more",
+            backgroundColor: .clear,
+            titlecolor: .black,
+            cornerRadius: 0
+        )
+        let attributedTitle = NSAttributedString(
+            string: "See more",
+            attributes: [.underlineStyle: NSUnderlineStyle.single.rawValue]
+        )
+        button.setAttributedTitle(attributedTitle, for: .normal)
+        return button
+    }()
 
     private let communityCard = View(
         backgroundcolor: .yellow,
@@ -51,12 +60,22 @@ class HomeViewController: BaseViewController {
         numOflines: 1,
         textalignment: .left
     )
-    private let seeMoreUserssButton = ButtonWithLabel(
-        title: "See more",
-        backgroundColor: .clear,
-        titlecolor: .black,
-        cornerRadius: 0
-    )
+
+    private let seeMoreUserssButton: UIButton = {
+        let button = ButtonWithLabel(
+            title: "See more",
+            backgroundColor: .clear,
+            titlecolor: .black,
+            cornerRadius: 0
+        )
+        let attributedTitle = NSAttributedString(
+            string: "See more",
+            attributes: [.underlineStyle: NSUnderlineStyle.single.rawValue]
+        )
+        button.setAttributedTitle(attributedTitle, for: .normal)
+        return button
+    }()
+    
     private let tableView = UITableView()
     private var users: [UsersModel] = []
     private var joinedCommunities: [String] = [] // List of community titles joined by the user
