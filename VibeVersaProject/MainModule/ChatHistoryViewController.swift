@@ -1,5 +1,3 @@
-
-import Foundation
 import UIKit
 import FirebaseFirestore
 import FirebaseAuth
@@ -21,8 +19,7 @@ class ChatHistoryViewController: BaseViewController {
         tableView.separatorStyle = .none
         
         NSLayoutConstraint.activate([
-            
-            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20.autoSized),
+            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: tabBarView.topAnchor)
@@ -36,21 +33,18 @@ class ChatHistoryViewController: BaseViewController {
         homeButton.backgroundColor = .clear
         chatButton.backgroundColor = .beige
         profileButton.backgroundColor = .clear
+        
         fetchChatUsers { result in
             switch result {
             case .success(let users):
-                if users.isEmpty {
-                    print("No chat history found.") // Handle empty case in UI
-                    self.showAlert(message: "No chat History found")
-                }
                 self.users = users
                 self.tableView.reloadData()
             case .failure(let error):
-                print("Error fetching chat users: \(error.localizedDescription)")
                 self.showAlert(message: "Error fetching chat users: \(error.localizedDescription)")
             }
         }
     }
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -78,8 +72,9 @@ extension ChatHistoryViewController: UITableViewDataSource, UITableViewDelegate 
         let chatVC = ChatViewController(currentUserId: currentUserId, recipientUser: selectedUser)
         navigationController?.pushViewController(chatVC, animated: true)
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 100
+        return 80
     }
 }
 
@@ -93,10 +88,11 @@ extension ChatHistoryViewController {
             return
         }
         
-        // Fetch chats where the current user is either the sender or receiver
         db.collection("chats")
-            .whereField("users", arrayContains: currentUserId) // Check if currentUserId is in the 'users' array
-            .getDocuments { (snapshot, error) in
+            .whereField("users", arrayContains: currentUserId)
+            .getDocuments { snapshot, error in
+                self.hideLoader()
+                
                 if let error = error {
                     completion(.failure(error))
                 } else if let documents = snapshot?.documents {
@@ -104,7 +100,6 @@ extension ChatHistoryViewController {
                     
                     for doc in documents {
                         if let users = doc.data()["users"] as? [String] {
-                            // Add the other user IDs to the set
                             users.forEach { userId in
                                 if userId != currentUserId {
                                     userIds.insert(userId)
@@ -113,31 +108,22 @@ extension ChatHistoryViewController {
                         }
                     }
                     
-                    // Handle empty userIds
                     guard !userIds.isEmpty else {
-                        self.hideLoader()
-                        completion(.success([])) // Return empty user list
+                        completion(.success([]))
                         return
                     }
                     
-                    // Fetch user details based on these user IDs
                     db.collection("users")
                         .whereField("userId", in: Array(userIds))
-                        .getDocuments { (userSnapshot, userError) in
-                            self.hideLoader()
+                        .getDocuments { userSnapshot, userError in
                             if let userError = userError {
                                 completion(.failure(userError))
                             } else if let userDocs = userSnapshot?.documents {
-                                // Map user data to UsersModel
                                 let users = userDocs.compactMap { UsersModel(dictionary: $0.data()) }
                                 completion(.success(users))
                             }
                         }
-                } else {
-                    self.hideLoader()
-                    completion(.failure(NSError(domain: "No chats found", code: 404, userInfo: nil)))
                 }
             }
     }
 }
-

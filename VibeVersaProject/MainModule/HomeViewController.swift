@@ -1,4 +1,3 @@
-
 import Foundation
 import UIKit
 import FirebaseFirestore
@@ -60,11 +59,8 @@ class HomeViewController: BaseViewController {
     )
     private let tableView = UITableView()
     private var users: [UsersModel] = []
-    var joined = false
     private var joinedCommunities: [String] = [] // List of community titles joined by the user
 
-
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige
@@ -75,6 +71,7 @@ class HomeViewController: BaseViewController {
         seeMoreCommunitiesButton.addTarget(self, action: #selector(handleSeeMoreCommunities), for: .touchUpInside)
         seeMoreUserssButton.addTarget(self, action: #selector(handleSeeMoreUsers), for: .touchUpInside)
         joinButton.addTarget(self, action: #selector(joinNowTapped), for: .touchUpInside)
+        communityCard.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleCommunityCardTapped)))
         fetchUsers { result in
             switch result {
             case .success(let usersData):
@@ -90,9 +87,10 @@ class HomeViewController: BaseViewController {
             }
         }
         fetchJoinedCommunities { [weak self] in
-                    self?.updateJoinButtonState()
-                }
+            self?.updateJoinButtonState()
+        }
     }
+
     override func setupViews() {
         view.addSubview(communitiesLabel)
         view.addSubview(seeMoreCommunitiesButton)
@@ -101,30 +99,19 @@ class HomeViewController: BaseViewController {
 
         // Community Card
         view.addSubview(communityCard)
-       communityCard.addSubview(communityTitleLabel)
-       communityCard.addSubview(communityDescriptionLabel)
-       communityCard.addSubview(joinButton)
-       view.addSubview(tableView)
-       tableView.translatesAutoresizingMaskIntoConstraints = false
-       tableView.dataSource = self
-       tableView.delegate = self
-       tableView.register(UserCell.self, forCellReuseIdentifier: UserCell.identifier)
-       tableView.backgroundColor = .clear
-       tableView.separatorStyle = .none
+        communityCard.addSubview(communityTitleLabel)
+        communityCard.addSubview(communityDescriptionLabel)
+        communityCard.addSubview(joinButton)
+        view.addSubview(tableView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UserCell.self, forCellReuseIdentifier: UserCell.identifier)
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
         
         super.setupViews()
 
-            // Update join button state
-            if joinedCommunities.contains(communityTitleLabel.text ?? "") {
-                joinButton.backgroundColor = .systemGreen
-                joinButton.setTitle("Joined", for: .normal)
-            } else {
-                joinButton.backgroundColor = .brown
-                joinButton.setTitle("Join", for: .normal)
-            }
-
-        super.setupViews()
-        
         NSLayoutConstraint.activate([
             communitiesLabel.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20.autoSized),
             communitiesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20.widthRatio),
@@ -163,82 +150,83 @@ class HomeViewController: BaseViewController {
             tableView.bottomAnchor.constraint(equalTo: tabBarView.topAnchor),
         ])
     }
+
     @objc func joinNowTapped() {
-            guard let userId = Auth.auth().currentUser?.uid else { return }
-            let db = Firestore.firestore()
-            let communityName = communityTitleLabel.text ?? ""
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        let communityName = communityTitleLabel.text ?? ""
 
-            if joinedCommunities.contains(communityName) {
-                // Unjoin logic
-                joinButton.backgroundColor = .brown
-                joinButton.setTitle("Join", for: .normal)
-                joinedCommunities.removeAll { $0 == communityName } // Remove from local list
+        if joinedCommunities.contains(communityName) {
+            // Unjoin logic
+            joinButton.backgroundColor = .brown
+            joinButton.setTitle("Join", for: .normal)
+            joinedCommunities.removeAll { $0 == communityName }
 
-                db.collection("users").document(userId).updateData([
-                    "joinedCommunities": FieldValue.arrayRemove([communityName])
-                ]) { error in
-                    if let error = error {
-                        print("Error unjoining community: \(error.localizedDescription)")
-                    } else {
-                        print("Community unjoined successfully.")
-                    }
+            db.collection("users").document(userId).updateData([
+                "joinedCommunities": FieldValue.arrayRemove([communityName])
+            ]) { error in
+                if let error = error {
+                    print("Error unjoining community: \(error.localizedDescription)")
                 }
-            } else {
-                // Join logic
-                joinButton.backgroundColor = .systemGreen
-                joinButton.setTitle("Joined", for: .normal)
-                joinedCommunities.append(communityName) // Add to local list
+            }
+        } else {
+            // Join logic
+            joinButton.backgroundColor = .systemGreen
+            joinButton.setTitle("Joined", for: .normal)
+            joinedCommunities.append(communityName)
 
-                db.collection("users").document(userId).updateData([
-                    "joinedCommunities": FieldValue.arrayUnion([communityName])
-                ]) { error in
-                    if let error = error {
-                        print("Error joining community: \(error.localizedDescription)")
-                    } else {
-                        print("Community joined successfully.")
-                    }
+            db.collection("users").document(userId).updateData([
+                "joinedCommunities": FieldValue.arrayUnion([communityName])
+            ]) { error in
+                if let error = error {
+                    print("Error joining community: \(error.localizedDescription)")
                 }
             }
         }
+    }
 
     private func updateJoinButtonState() {
-            if joinedCommunities.contains(communityTitleLabel.text ?? "") {
-                joinButton.backgroundColor = .systemGreen
-                joinButton.setTitle("Joined", for: .normal)
-            } else {
-                joinButton.backgroundColor = .brown
-                joinButton.setTitle("Join", for: .normal)
-            }
+        if joinedCommunities.contains(communityTitleLabel.text ?? "") {
+            joinButton.backgroundColor = .systemGreen
+            joinButton.setTitle("Joined", for: .normal)
+        } else {
+            joinButton.backgroundColor = .brown
+            joinButton.setTitle("Join", for: .normal)
         }
-    
+    }
+
     private func fetchJoinedCommunities(completion: @escaping () -> Void) {
-            guard let userId = Auth.auth().currentUser?.uid else { return }
-            let db = Firestore.firestore()
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(userId).getDocument { [weak self] (document, error) in
+            guard let self = self else { return }
             
-            db.collection("users").document(userId).getDocument { [weak self] (document, error) in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    print("Error fetching joined communities: \(error.localizedDescription)")
-                    completion()
-                    return
-                }
-                
-                if let data = document?.data(), let joined = data["joinedCommunities"] as? [String] {
-                    self.joinedCommunities = joined
-                }
-                
+            if let error = error {
+                print("Error fetching joined communities: \(error.localizedDescription)")
                 completion()
+                return
             }
+            
+            if let data = document?.data(), let joined = data["joinedCommunities"] as? [String] {
+                self.joinedCommunities = joined
+            }
+            
+            completion()
         }
-
-
+    }
 
     @objc func handleSeeMoreCommunities() {
         self.navigationController?.pushViewController(AllCommunitiesViewController(), animated: true)
     }
+
     @objc func handleSeeMoreUsers() {
         self.navigationController?.pushViewController(AllUsersViewController(users: users), animated: true)
+    }
+
+    @objc func handleCommunityCardTapped() {
+        let communityUsersVC = CommunityUsersViewController(communityTitle: communityTitleLabel.text ?? "")
+        self.navigationController?.pushViewController(communityUsersVC, animated: true)
     }
 
     private func showAlert(message: String) {
@@ -247,6 +235,7 @@ class HomeViewController: BaseViewController {
         present(alert, animated: true)
     }
 }
+
 // MARK: - UITableViewDataSource, UITableViewDelegate
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -286,5 +275,4 @@ extension HomeViewController {
             }
         }
     }
-
 }

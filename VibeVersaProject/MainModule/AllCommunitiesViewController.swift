@@ -160,6 +160,12 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
         return 170.autoSized
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCommunity = filteredCommunities[indexPath.row]
+        let communityUsersVC = CommunityUsersViewController(communityTitle: selectedCommunity.title)
+        navigationController?.pushViewController(communityUsersVC, animated: true)
+    }
+    
     // MARK: - Handle Join/Unjoin Action
     private func handleJoinToggle(for community: Community, shouldJoin: Bool) {
         guard let userId = Auth.auth().currentUser?.uid else { return }

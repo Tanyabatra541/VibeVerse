@@ -1,4 +1,3 @@
-
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -8,26 +7,26 @@ class UserProfileController: UIViewController {
     let headerView = View(backgroundcolor: .darkBeige, cornerradius: 0)
     let headingLabel = Label(texttitle: "Profile", textcolor: .black, font: .systemFont(ofSize: 30, weight: .bold), numOflines: 1, textalignment: .left)
     private let backButton = ButtonWithImage(systemName: "arrow.backward")
-    private let profileImageView = ImageView(imagetitle: "logo", imagecolor: .blue)
+    private let profileImageView = ImageView(imagecolor: .blue)
     private let nameLabel = Label(texttitle: "Name", textcolor: .black, font: .systemFont(ofSize: 26), numOflines: 0, textalignment: .center)
     private let messageButton = ButtonWithLabel(title: "Message", font: .systemFont(ofSize: 14), backgroundColor: .yellow, titlecolor: .black, cornerRadius: 10)
     
     private let aboutLabel = Label(texttitle: "About", textcolor: .black, font: .systemFont(ofSize: 24), numOflines: 0, textalignment: .left)
     
     private let phoneImage = ImageView(systemName: "phone", imagecolor: .black)
-    private let phoneLabel = Label(texttitle: "03388473222", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let phoneLabel = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let mailImage = ImageView(systemName: "mail", imagecolor: .black)
-    private let mailLabel = Label(texttitle: "ali@gmail.com", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let mailLabel = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let linkImage = ImageView(systemName: "link", imagecolor: .black)
-    private let linkLabel = Label(texttitle: "http://kajsckjasnkcnas", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let linkLabel = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let descriptionHeadingLabel = Label(texttitle: "Description", textcolor: .black, font: .systemFont(ofSize: 22), numOflines: 0, textalignment: .left)
-    private let descriptiontText = Label(texttitle: "jkahckjhakjhclkjalcjklasjncklasnlkcnasklncklasnlkcnaslkncklasncklasnlkcnlsnjnorevokporkeo", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let descriptiontText = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     
     private let acheivementsHeadingLabel = Label(texttitle: "Achievements", textcolor: .black, font: .systemFont(ofSize: 22), numOflines: 0, textalignment: .left)
-    private let acheivementsText = Label(texttitle: "lksdjnvlinwvknkjnjkvnkjsdnkjvndskjnvkjdsnvkljdsnkjvndsjknvkjsdnvjksndkjvnskjdnvjknewn;nvn;", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
+    private let acheivementsText = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     var userData: UsersModel
     
     init(userData: UsersModel) {
@@ -48,6 +47,9 @@ class UserProfileController: UIViewController {
         profileImageView.layer.cornerRadius = 65.autoSized
         messageButton.addTarget(self, action: #selector(messageButtonTapped), for: .touchUpInside)
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
+        
+        // Load profile image
+        loadProfileImage()
     }
     
     func setupViews() {
@@ -70,29 +72,18 @@ class UserProfileController: UIViewController {
         view.addSubview(acheivementsText)
                 
         NSLayoutConstraint.activate([
-            
             headerView.topAnchor.constraint(equalTo: view.topAnchor),
             headerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             headerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             headerView.heightAnchor.constraint(equalToConstant: 100.autoSized),
             
-            // Back Button
             backButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor, constant: 20.autoSized),
             backButton.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20.widthRatio),
             backButton.widthAnchor.constraint(equalToConstant: 40.autoSized),
             backButton.heightAnchor.constraint(equalToConstant: 40.autoSized),
 
-            // Heading Label
             headingLabel.centerYAnchor.constraint(equalTo: headerView.centerYAnchor, constant: 20.autoSized),
             headingLabel.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 20.widthRatio),
-            
-//            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40.autoSized),
-//            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20.widthRatio),
-//            backButton.widthAnchor.constraint(equalToConstant: 40.autoSized),
-//            backButton.heightAnchor.constraint(equalToConstant: 40.autoSized),
-//
-//            headingLabel.centerYAnchor.constraint(equalTo: backButton.centerYAnchor),
-//            headingLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
             profileImageView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 40.autoSized),
@@ -141,13 +132,12 @@ class UserProfileController: UIViewController {
             acheivementsText.leadingAnchor.constraint(equalTo: descriptionHeadingLabel.leadingAnchor),
             acheivementsText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30.widthRatio),
             acheivementsText.topAnchor.constraint(equalTo: acheivementsHeadingLabel.bottomAnchor, constant: 20.autoSized),
-            
         ])
     }
+    
     private func makeUI() {
         headingLabel.text = "\(userData.firstName) \(userData.lastName)"
         nameLabel.text = "\(userData.firstName) \(userData.lastName)"
-        profileImageView.image = userData.profileImage
         phoneLabel.text = userData.phone
         mailLabel.text = userData.email
         linkLabel.text = userData.workLink
@@ -155,18 +145,41 @@ class UserProfileController: UIViewController {
         acheivementsText.text = userData.achievements
     }
     
+    private func loadProfileImage() {
+        guard let profileImageUrl = userData.profileImageUrl, let url = URL(string: profileImageUrl) else {
+            print("Invalid profile image URL")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error loading profile image: \(error.localizedDescription)")
+                return
+            }
+            
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.profileImageView.image = image
+                }
+            }
+        }.resume()
+    }
+    
     @objc func messageButtonTapped() {
         guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         let chatVC = ChatViewController(currentUserId: currentUserId, recipientUser: userData)
         navigationController?.pushViewController(chatVC, animated: true)
     }
+    
     @objc func backButtonTapped() {
         self.navigationController?.popViewController(animated: true)
     }
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 }
-

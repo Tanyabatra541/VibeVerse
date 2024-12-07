@@ -41,6 +41,8 @@
 		18C1F69D2CFF18A100075846 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C1F69C2CFF18A100075846 /* LoginViewController.swift */; };
 		A057F27B2D03B96D00AD0682 /* Community.swift in Sources */ = {isa = PBXBuildFile; fileRef = A057F27A2D03B96D00AD0682 /* Community.swift */; };
 		A057F27D2D03C01D00AD0682 /* MyCommunitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A057F27C2D03C01D00AD0682 /* MyCommunitiesViewController.swift */; };
+		A057F2812D03D97E00AD0682 /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A057F2802D03D97E00AD0682 /* ChatMessageCell.swift */; };
+		A057F2832D03DE0900AD0682 /* CommunityUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A057F2822D03DE0900AD0682 /* CommunityUsersViewController.swift */; };
 		A0A4B6B72D03A080000EACBA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A0A4B6B62D03A07F000EACBA /* GoogleService-Info.plist */; };
 		A0A4B6B92D03A38C000EACBA /* AllCommunitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A4B6B82D03A38C000EACBA /* AllCommunitiesViewController.swift */; };
 		A0A4B6BB2D03A3AF000EACBA /* AllUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A4B6BA2D03A3AF000EACBA /* AllUsersViewController.swift */; };
@@ -85,6 +87,8 @@
 		424B2998C96084F8BAC3A034 /* Pods_VibeVersaProject.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VibeVersaProject.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A057F27A2D03B96D00AD0682 /* Community.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Community.swift; sourceTree = "<group>"; };
 		A057F27C2D03C01D00AD0682 /* MyCommunitiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCommunitiesViewController.swift; sourceTree = "<group>"; };
+		A057F2802D03D97E00AD0682 /* ChatMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageCell.swift; sourceTree = "<group>"; };
+		A057F2822D03DE0900AD0682 /* CommunityUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityUsersViewController.swift; sourceTree = "<group>"; };
 		A0A4B6B62D03A07F000EACBA /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Info Plist/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A0A4B6B82D03A38C000EACBA /* AllCommunitiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllCommunitiesViewController.swift; sourceTree = "<group>"; };
 		A0A4B6BA2D03A3AF000EACBA /* AllUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUsersViewController.swift; sourceTree = "<group>"; };
@@ -118,6 +122,8 @@
 				A0A4B6B82D03A38C000EACBA /* AllCommunitiesViewController.swift */,
 				A0A4B6BA2D03A3AF000EACBA /* AllUsersViewController.swift */,
 				A057F27C2D03C01D00AD0682 /* MyCommunitiesViewController.swift */,
+				A057F2802D03D97E00AD0682 /* ChatMessageCell.swift */,
+				A057F2822D03DE0900AD0682 /* CommunityUsersViewController.swift */,
 			);
 			path = MainModule;
 			sourceTree = "<group>";
@@ -381,6 +387,8 @@
 				18C1F6982CFE133B00075846 /* PersonalWorkRelatedDetailsController.swift in Sources */,
 				18C1F6832CFC9FB700075846 /* View.swift in Sources */,
 				184067592D00D03000AAC44D /* UserProfileController.swift in Sources */,
+				A057F2812D03D97E00AD0682 /* ChatMessageCell.swift in Sources */,
+				A057F2832D03DE0900AD0682 /* CommunityUsersViewController.swift in Sources */,
 				18C1F6852CFC9FB800075846 /* ButtonWithImage.swift in Sources */,
 				184067742D01877300AAC44D /* ChatHistoryViewController.swift in Sources */,
 				184067762D0188A000AAC44D /* MessageModel.swift in Sources */,
