@@ -4,6 +4,9 @@ import FirebaseAuth
 
 class LoginViewController: UIViewController {
 
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+
     private let backButton = ButtonWithImage(imageName: "back")
     private let titleLabel = Label(texttitle: "Hi, Welcome Back! 👋", textcolor: .black, font: .boldSystemFont(ofSize: 28), numOflines: 1, textalignment: .left)
     private let subtitleLabel = Label(texttitle: "Hello again, you have been missed!", textcolor: .black, font: .systemFont(ofSize: 15), numOflines: 0, textalignment: .left)
@@ -35,13 +38,13 @@ class LoginViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige
+        setupViews()
+        setupPasswordField()
+        enableDisableButton()
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         loginButton.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
         emailTextField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
         passwordTextField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
-        setupViews()
-        setupPasswordField()
-        enableDisableButton()
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -49,62 +52,81 @@ class LoginViewController: UIViewController {
     }
 
     private func setupViews() {
-        // Add subviews
-        view.addSubview(backButton)
-        view.addSubview(titleLabel)
-        view.addSubview(subtitleLabel)
-        view.addSubview(emailLabel)
-        view.addSubview(emailTextField)
-        view.addSubview(passwordLabel)
-        view.addSubview(passwordTextField)
-        view.addSubview(loginButton)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(backButton)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(subtitleLabel)
+        contentView.addSubview(emailLabel)
+        contentView.addSubview(emailTextField)
+        contentView.addSubview(passwordLabel)
+        contentView.addSubview(passwordTextField)
+        contentView.addSubview(loginButton)
+
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
+            // Scroll View
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            // Content View
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
             // Back Button
-            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20.autoSized),
-            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20.widthRatio),
+            backButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20.autoSized),
+            backButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20.widthRatio),
 
             // Title Label
             titleLabel.topAnchor.constraint(equalTo: backButton.bottomAnchor, constant: 20.autoSized),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
 
             // Subtitle Label
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 10.autoSized),
-            subtitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
 
             // Email Label
             emailLabel.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 80.autoSized),
-            emailLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
 
             // Email TextField
             emailTextField.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 10.autoSized),
-            emailTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            emailTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            emailTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            emailTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             emailTextField.heightAnchor.constraint(equalToConstant: 50.autoSized),
 
             // Password Label
             passwordLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20.autoSized),
-            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
+            passwordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
 
             // Password TextField
             passwordTextField.topAnchor.constraint(equalTo: passwordLabel.bottomAnchor, constant: 10.autoSized),
-            passwordTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            passwordTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            passwordTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            passwordTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             passwordTextField.heightAnchor.constraint(equalToConstant: 50.autoSized),
 
             // Login Button
             loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 40.autoSized),
-            loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25.widthRatio),
-            loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25.widthRatio),
+            loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 25.widthRatio),
+            loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -25.widthRatio),
             loginButton.heightAnchor.constraint(equalToConstant: 50.autoSized),
+
+            // Content View Bottom Anchor
+            loginButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40.autoSized)
         ])
     }
 
     private func setupPasswordField() {
         passwordTextField.rightView = eyeButton
         passwordTextField.rightViewMode = .always
-
         eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
     }
 
