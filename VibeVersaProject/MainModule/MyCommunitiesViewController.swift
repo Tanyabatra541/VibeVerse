@@ -138,8 +138,9 @@ class MyCommunitiesViewController: UIViewController, UITableViewDelegate, UITabl
             self.myCommunities = documents.compactMap { document -> Community? in
                 let data = document.data()
                 guard let title = data["title"] as? String,
-                      let description = data["description"] as? String else { return nil }
-                return Community(title: title, description: description)
+                      let description = data["description"] as? String,
+                      let category = data["category"] as? String else { return nil }
+                return Community(title: title, description: description, category: category)
             }
             
             DispatchQueue.main.async {
@@ -199,3 +200,4 @@ class MyCommunitiesViewController: UIViewController, UITableViewDelegate, UITabl
         return 170.autoSized
     }
 }
+

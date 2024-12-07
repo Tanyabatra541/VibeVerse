@@ -31,8 +31,9 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
         view.addSubview(headerView)
         headerView.addSubview(backButton)
         headerView.addSubview(headingLabel)
+        
         // Setup search bar
-        searchBar.placeholder = "Search Communities"
+        searchBar.placeholder = "Search Communities by Category"
         searchBar.backgroundColor = .clear
         searchBar.backgroundImage = UIImage()
         searchBar.searchBarStyle = UISearchBar.Style.default
@@ -105,8 +106,9 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
             self.communities = documents.compactMap { document -> Community? in
                 let data = document.data()
                 guard let title = data["title"] as? String,
-                      let description = data["description"] as? String else { return nil }
-                return Community(title: title, description: description)
+                      let description = data["description"] as? String,
+                      let category = data["category"] as? String else { return nil }
+                return Community(title: title, description: description, category: category)
             }
             
             self.filteredCommunities = self.communities
@@ -200,11 +202,12 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
             filteredCommunities = communities
         } else {
             filteredCommunities = communities.filter {
-                $0.title.lowercased().contains(searchText.lowercased())
+                $0.category.lowercased().contains(searchText.lowercased())
             }
         }
         tableView.reloadData()
     }
+
 }
 
 // MARK: - CommunityCell

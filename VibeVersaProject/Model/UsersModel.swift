@@ -1,4 +1,3 @@
-
 import Foundation
 import UIKit
 
@@ -14,7 +13,9 @@ struct UsersModel {
     let profileImageUrl: String? // URL for the profile image
     var profileImage: UIImage? // Holds the downloaded profile image (optional)
     var joinedCommunities: [String] // List of joined communities
-    
+    let goodAtThings: [String] // Skills user is good at (parsed into an array)
+    let interests: [String] // Skills user needs help with (parsed into an array)
+
     init?(dictionary: [String: Any]) {
         // Ensure the ID is present
         guard let id = dictionary["userId"] as? String,
@@ -41,6 +42,26 @@ struct UsersModel {
         self.profileImageUrl = dictionary["profileImageUrl"] as? String
         self.profileImage = nil // Default to nil; fetched asynchronously
         self.joinedCommunities = dictionary["joinedCommunities"] as? [String] ?? []
+        
+        // Parse `goodAtThings` into an array
+        if let interestsDetails = dictionary["interestsDetails"] as? [String: Any],
+           let goodAtThingsString = interestsDetails["goodAtThings"] as? String {
+            self.goodAtThings = goodAtThingsString
+                .components(separatedBy: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        } else {
+            self.goodAtThings = []
+        }
+        
+        // Parse `interests` into an array
+        if let interestsDetails = dictionary["interestsDetails"] as? [String: Any],
+           let interestsString = interestsDetails["interests"] as? String {
+            self.interests = interestsString
+                .components(separatedBy: ",")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        } else {
+            self.interests = []
+        }
     }
     
     func fetchProfileImage(completion: @escaping (UIImage?) -> Void) {
@@ -58,4 +79,3 @@ struct UsersModel {
         }.resume()
     }
 }
-
