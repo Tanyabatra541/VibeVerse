@@ -23,24 +23,6 @@ class LoginViewController: UIViewController {
         return button
     }()
     
-//    var personalDetailsModel: SignupPersonalDetailsModel?
-//    var dob: String?
-//    var interestsDetails: SignupInterestsDetailsModel?
-//    var workRelatedDetails: SignupWorkDetailsModel?
-//    var profileImage: UIImage?
-//
-//    init(signupPersonalDetails: SignupPersonalDetailsModel, signupInterestsDetails: SignupInterestsDetailsModel, dob: String, signupWorkDetails: SignupWorkDetailsModel, profileImage: UIImage) {
-//        self.personalDetailsModel = signupPersonalDetails
-//        self.dob = dob
-//        self.interestsDetails = signupInterestsDetails
-//        self.workRelatedDetails = signupWorkDetails
-//        self.profileImage = profileImage
-//        super.init(nibName: nil, bundle: nil)
-//    }
-//
-//    required init?(coder: NSCoder) {
-//        fatalError("init(coder:) has not been implemented")
-//    }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige

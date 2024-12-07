@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import FirebaseFirestore
+import FirebaseAuth
 
 class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
@@ -12,15 +13,18 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
     
     private var communities: [Community] = [] // Dynamically fetched from Firestore
     private var filteredCommunities: [Community] = []
-    
+    private var joinedCommunities: [String] = [] // List of joined community titles for the current user
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .beige
         setupUI()
         backButton.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
         
-        // Fetch communities from Firebase
-        fetchCommunitiesFromFirebase()
+        // Fetch communities and joined state
+        fetchJoinedCommunities { [weak self] in
+            self?.fetchCommunitiesFromFirebase()
+        }
     }
     
     private func setupUI() {
@@ -85,7 +89,6 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
     private func fetchCommunitiesFromFirebase() {
         let db = Firestore.firestore()
         
-        // Fetch communities collection from Firestore
         db.collection("communities").getDocuments { [weak self] (snapshot, error) in
             guard let self = self else { return }
             
@@ -99,7 +102,6 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
                 return
             }
             
-            // Map documents to Community model
             self.communities = documents.compactMap { document -> Community? in
                 let data = document.data()
                 guard let title = data["title"] as? String,
@@ -107,11 +109,31 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
                 return Community(title: title, description: description)
             }
             
-            // Update filtered list and reload table view
             self.filteredCommunities = self.communities
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
+        }
+    }
+    
+    // MARK: - Fetch Joined Communities
+    private func fetchJoinedCommunities(completion: @escaping () -> Void) {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        db.collection("users").document(userId).getDocument { [weak self] (document, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error fetching joined communities: \(error.localizedDescription)")
+                completion()
+                return
+            }
+            
+            if let data = document?.data(), let joined = data["joinedCommunities"] as? [String] {
+                self.joinedCommunities = joined
+            }
+            completion()
         }
     }
     
@@ -126,12 +148,44 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
         }
         
         let community = filteredCommunities[indexPath.row]
-        cell.configure(with: community)
+        let isJoined = joinedCommunities.contains(community.title)
+        cell.configure(with: community, isJoined: isJoined)
+        cell.joinAction = { [weak self] shouldJoin in
+            self?.handleJoinToggle(for: community, shouldJoin: shouldJoin)
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 170.autoSized
+    }
+    
+    // MARK: - Handle Join/Unjoin Action
+    private func handleJoinToggle(for community: Community, shouldJoin: Bool) {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        let db = Firestore.firestore()
+        
+        if shouldJoin {
+            db.collection("users").document(userId).updateData([
+                "joinedCommunities": FieldValue.arrayUnion([community.title])
+            ]) { error in
+                if let error = error {
+                    print("Error joining community: \(error.localizedDescription)")
+                } else {
+                    print("Community joined: \(community.title)")
+                }
+            }
+        } else {
+            db.collection("users").document(userId).updateData([
+                "joinedCommunities": FieldValue.arrayRemove([community.title])
+            ]) { error in
+                if let error = error {
+                    print("Error unjoining community: \(error.localizedDescription)")
+                } else {
+                    print("Community unjoined: \(community.title)")
+                }
+            }
+        }
     }
     
     // MARK: - SearchBar Delegate
@@ -150,12 +204,14 @@ class AllCommunitiesViewController: UIViewController, UITableViewDelegate, UITab
 // MARK: - CommunityCell
 class CommunityCell: UITableViewCell {
     static let identifier = "CommunityCell"
+    private var isJoined = false // Local tracking of join state
     
     private let cardView = View(backgroundcolor: .yellow, cornerradius: 15.autoSized)
     let titleLabel = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 18, weight: .bold), numOflines: 0, textalignment: .left)
     private let descriptionLabel = Label(texttitle: "", textcolor: .black, font: .systemFont(ofSize: 14), numOflines: 0, textalignment: .left)
     private let joinButton = ButtonWithLabel(title: "Join", font: .systemFont(ofSize: 16, weight: .bold), backgroundColor: .brown, titlecolor: .white, cornerRadius: 10.autoSized)
-    var joined = false
+    
+    var joinAction: ((Bool) -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -196,19 +252,30 @@ class CommunityCell: UITableViewCell {
         ])
     }
     
-    @objc func handleJoinNow() {
-        joined.toggle()
-        if joined {
-            joinButton.backgroundColor = .systemGreen
-            joinButton.setTitle("Joined", for: .normal)
-        } else {
-            joinButton.backgroundColor = .black
-            joinButton.setTitle("Join", for: .normal)
-        }
+    @objc private func handleJoinNow() {
+        isJoined.toggle()
+        updateJoinButtonAppearance()
+        joinAction?(isJoined)
     }
     
-    func configure(with community: Community) {
+    private func updateJoinButtonAppearance() {
+            if isJoined {
+                joinButton.backgroundColor = .systemGreen
+                joinButton.setTitle("Joined", for: .normal)
+            } else {
+                joinButton.backgroundColor = .brown
+                joinButton.setTitle("Join", for: .normal)
+            }
+        }
+    
+    func configure(with community: Community, isJoined: Bool) {
         titleLabel.text = community.title
         descriptionLabel.text = community.description
+        configureButton(isJoined: isJoined)
+    }
+    
+    private func configureButton(isJoined: Bool) {
+        joinButton.setTitle(isJoined ? "Joined" : "Join", for: .normal)
+        joinButton.backgroundColor = isJoined ? .systemGreen : .brown
     }
 }

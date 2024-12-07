@@ -232,6 +232,7 @@ extension MyProfileViewController {
         let myCommunitiesVC = MyCommunitiesViewController()
         self.navigationController?.pushViewController(myCommunitiesVC, animated: true)
     }
+
     
     func displayJoinedCommunities(_ communities: [String]) {
         let communitiesList = communities.joined(separator: "\n")
