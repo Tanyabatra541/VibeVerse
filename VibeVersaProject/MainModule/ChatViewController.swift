@@ -1,60 +1,64 @@
-
 import Foundation
 import UIKit
 import FirebaseFirestore
 import FirebaseAuth
 
 class ChatViewController: UIViewController {
-    
+
     let headerView = View(backgroundcolor: .darkBeige, cornerradius: 0)
     let headingLabel = Label(texttitle: "Profile", textcolor: .black, font: .systemFont(ofSize: 30, weight: .bold), numOflines: 1, textalignment: .left)
     private let backButton = ButtonWithImage(systemName: "arrow.backward")
-    
+
     private let tableView = UITableView()
     private let messageInputView = View(backgroundcolor: .darkBeige, cornerradius: 10.autoSized)
     private let messageTextField = UITextField()
     private let sendButton = UIButton()
-    
+
     private var messages: [MessageModel] = []
     private let db = Firestore.firestore()
-    
+
     private var currentUserId: String
     private var recipientUser: UsersModel
     private var chatDocumentId: String?
-    
+
     private var bottomConstraint: NSLayoutConstraint?
-    
+
     init(currentUserId: String, recipientUser: UsersModel) {
         self.currentUserId = currentUserId
         self.recipientUser = recipientUser
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.estimatedRowHeight = 60 // A reasonable default height
+        tableView.rowHeight = UITableView.automaticDimension
         view.backgroundColor = .beige
         createChatDocumentIfNeeded()
         fetchMessages()
         setupKeyboardObservers()
         setupUI()
     }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
+
     private func setupUI() {
         view.backgroundColor = .beige
         headingLabel.text = "\(recipientUser.firstName ) \(recipientUser.lastName)"
         view.addSubview(headerView)
         headerView.addSubview(backButton)
         headerView.addSubview(headingLabel)
+        
         // Table View
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "MessageCell")
+        tableView.register(ChatMessageCell.self, forCellReuseIdentifier: ChatMessageCell.identifier)
         tableView.separatorStyle = .none
         tableView.backgroundColor = .clear
         view.addSubview(tableView)
@@ -96,7 +100,7 @@ class ChatViewController: UIViewController {
             headingLabel.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 20.widthRatio),
             
             // Table View
-            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: headerView.bottomAnchor, constant: 20), // Reduced gap
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: messageInputView.topAnchor),
@@ -104,7 +108,6 @@ class ChatViewController: UIViewController {
             // Message Input View
             messageInputView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10.widthRatio),
             messageInputView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10.widthRatio),
-//            messageInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             messageInputView.heightAnchor.constraint(equalToConstant: 50),
             
             // Message Text Field
@@ -119,10 +122,12 @@ class ChatViewController: UIViewController {
             sendButton.heightAnchor.constraint(equalToConstant: 40),
             sendButton.widthAnchor.constraint(equalToConstant: 60),
         ])
+        
         bottomConstraint = messageInputView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10)
         bottomConstraint?.isActive = true
     }
-    
+
+
     private func fetchMessages() {
         guard let chatDocumentId = chatDocumentId else { return }
 
@@ -137,7 +142,6 @@ class ChatViewController: UIViewController {
                 }
 
                 self.messages = snapshot?.documents.compactMap {
-                    // Ensure `timestamp` exists before mapping
                     let data = $0.data()
                     guard data["timestamp"] != nil else { return nil }
                     return MessageModel(dictionary: data)
@@ -150,7 +154,6 @@ class ChatViewController: UIViewController {
             }
     }
 
-    
     private func createChatDocumentIfNeeded() {
         let userIds = [currentUserId, recipientUser.id].sorted()
         let chatId = userIds.joined(separator: "_")
@@ -171,7 +174,7 @@ class ChatViewController: UIViewController {
             }
         }
     }
-    
+
     @objc private func sendMessage() {
         guard let chatDocumentId = chatDocumentId,
               let messageText = messageTextField.text,
@@ -192,21 +195,15 @@ class ChatViewController: UIViewController {
                     print("Error sending message: \(error)")
                 } else {
                     self.messageTextField.text = ""
-
-                    // Update last message
                     self.db.collection("chats").document(chatDocumentId).updateData([
                         "lastMessage": messageText,
                         "lastUpdated": FieldValue.serverTimestamp()
                     ])
-
-                    // Force refresh messages immediately
-                    self.fetchMessages()
                 }
             }
     }
 
     private func setupKeyboardObservers() {
-        // Observe keyboard show and hide notifications
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -220,24 +217,21 @@ class ChatViewController: UIViewController {
     }
 
     private func adjustForKeyboard(notification: Notification, isShowing: Bool) {
-        // Get keyboard height from the notification's userInfo
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
         let keyboardHeight = keyboardFrame.height
-        
-        // Adjust the bottom constraint
         bottomConstraint?.constant = isShowing ? -(keyboardHeight + 10) : -10
-        
-        // Animate the changes
         UIView.animate(withDuration: 0.3) {
             self.view.layoutIfNeeded()
         }
     }
+
     private func scrollToBottom() {
         if !messages.isEmpty {
             let indexPath = IndexPath(row: messages.count - 1, section: 0)
             tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
         }
     }
+
     @objc func backButtonTapped() {
         self.navigationController?.popViewController(animated: true)
     }
@@ -247,15 +241,18 @@ extension ChatViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MessageCell", for: indexPath)
-        cell.backgroundColor = .clear
-        cell.selectionStyle = .none
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChatMessageCell.identifier, for: indexPath) as? ChatMessageCell else {
+            return UITableViewCell()
+        }
         let message = messages[indexPath.row]
-        cell.textLabel?.text = message.text
-        cell.textLabel?.textColor = .black
-        cell.textLabel?.textAlignment = message.senderId == currentUserId ? .right : .left
+        cell.configure(with: message, isSender: message.senderId == currentUserId)
         return cell
     }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
 }
+
