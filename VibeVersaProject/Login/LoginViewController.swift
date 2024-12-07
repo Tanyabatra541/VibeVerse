@@ -1,4 +1,3 @@
-
 import Foundation
 import UIKit
 import FirebaseAuth
@@ -10,10 +9,20 @@ class LoginViewController: UIViewController {
     private let subtitleLabel = Label(texttitle: "Hello again, you have been missed!", textcolor: .black, font: .systemFont(ofSize: 15), numOflines: 0, textalignment: .left)
 
     private let emailLabel = Label(texttitle: "Email", textcolor: .black, font: .boldSystemFont(ofSize: 16), numOflines: 1, textalignment: .left)
-    private let emailTextField = TextField(textTitle: "Email Address", backgroundcolor: .clear)
+    private let emailTextField: TextField = {
+        let textField = TextField(textTitle: "Email Address", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        textField.keyboardType = .emailAddress
+        return textField
+    }()
 
     private let passwordLabel = Label(texttitle: "Password", textcolor: .black, font: .boldSystemFont(ofSize: 16), numOflines: 1, textalignment: .left)
-    private let passwordTextField = TextField(textTitle: "Password", backgroundcolor: .clear)
+    private let passwordTextField: TextField = {
+        let textField = TextField(textTitle: "Password", backgroundcolor: .clear)
+        textField.autocapitalizationType = .none
+        textField.isSecureTextEntry = true
+        return textField
+    }()
 
     private let loginButton = ButtonWithLabel(title: "LOGIN", backgroundColor: .brown, titlecolor: .white, cornerRadius: 10)
     private let eyeButton: UIButton = {
@@ -31,8 +40,10 @@ class LoginViewController: UIViewController {
         emailTextField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
         passwordTextField.addTarget(self, action: #selector(editingDidChangedForTextField(textField:)), for: .editingChanged)
         setupViews()
+        setupPasswordField()
         enableDisableButton()
     }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         view.endEditing(true)
     }
@@ -89,15 +100,14 @@ class LoginViewController: UIViewController {
             loginButton.heightAnchor.constraint(equalToConstant: 50.autoSized),
         ])
     }
+
     private func setupPasswordField() {
-        passwordTextField.isSecureTextEntry = true
-        passwordTextField.placeholder = "Password"
-        passwordTextField.borderStyle = .roundedRect
         passwordTextField.rightView = eyeButton
         passwordTextField.rightViewMode = .always
 
         eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
     }
+
     func enableDisableButton() {
         if emailTextField.text!.count < 5 || passwordTextField.text!.count < 4  {
             loginButton.alpha = 0.3
@@ -107,9 +117,11 @@ class LoginViewController: UIViewController {
             loginButton.isUserInteractionEnabled = true
         }
     }
+
     @objc func editingDidChangedForTextField(textField: UITextField) {
         enableDisableButton()
     }
+
     @objc private func togglePasswordVisibility() {
         passwordTextField.isSecureTextEntry.toggle()
         let eyeIcon = passwordTextField.isSecureTextEntry ? "eye.slash" : "eye"
@@ -122,7 +134,6 @@ class LoginViewController: UIViewController {
 
     @objc func loginButtonTapped() {
         view.endEditing(true)
-//        self.navigateToHomeScreen()
         guard let email = emailTextField.text, !email.isEmpty,
               let password = passwordTextField.text, !password.isEmpty else {
             showAlert(message: "Please enter both email and password.")
@@ -144,26 +155,25 @@ class LoginViewController: UIViewController {
             }
         }
     }
+
     func loginUser(email: String, password: String, completion: @escaping (Result<User, Error>) -> Void) {
         self.showLoader()
         Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
             self.hideLoader()
             if let error = error {
-                // Return the error through the completion handler
                 completion(.failure(error))
                 return
             }
             
             if let user = authResult?.user {
-                // Return the Firebase user object
                 completion(.success(user))
             } else {
-                // Handle an unexpected case where the user object is nil
                 let unexpectedError = NSError(domain: "LoginError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Unexpected error occurred during login."])
                 completion(.failure(unexpectedError))
             }
         }
     }
+
     func navigateToHomeScreen() {
         self.navigationController?.pushViewController(HomeViewController(), animated: true)
     }
@@ -174,3 +184,4 @@ class LoginViewController: UIViewController {
         present(alert, animated: true)
     }
 }
+

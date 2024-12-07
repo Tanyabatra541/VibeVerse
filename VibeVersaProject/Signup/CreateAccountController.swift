@@ -33,6 +33,12 @@ class CreateAccountController: UIViewController, UITextFieldDelegate {
         textField.autocapitalizationType = .none
         return textField
     }()
+    private let eyeButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+        button.tintColor = .gray
+        return button
+    }()
     private let continueButton = ButtonWithLabel(title: "Continue", backgroundColor: .brown, titlecolor: .white, cornerRadius: 10)
     private let loginLabel = Label(texttitle: "Already have an account?", textcolor: .brown, font: .systemFont(ofSize: 16), numOflines: 1, textalignment: .center)
     private let loginButtonLabel = Label(texttitle: "Login", textcolor: .black, font: .systemFont(ofSize: 16), numOflines: 0, textalignment: .left)
@@ -41,6 +47,7 @@ class CreateAccountController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         view.backgroundColor = .beige
         setupViews()
+        setupPasswordField()
         enableDisableButton()
         backButton.addTarget(self, action: #selector(backButtonTapped), for: .touchUpInside)
         continueButton.addTarget(self, action: #selector(continueButtonTapped), for: .touchUpInside)
@@ -120,6 +127,19 @@ class CreateAccountController: UIViewController, UITextFieldDelegate {
             loginButtonLabel.leadingAnchor.constraint(equalTo: loginLabel.trailingAnchor),
             loginButtonLabel.topAnchor.constraint(equalTo: loginLabel.topAnchor),
         ])
+    }
+
+    private func setupPasswordField() {
+        passwordField.rightView = eyeButton
+        passwordField.rightViewMode = .always
+
+        eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+    }
+
+    @objc func togglePasswordVisibility() {
+        passwordField.isSecureTextEntry.toggle()
+        let eyeIcon = passwordField.isSecureTextEntry ? "eye.slash" : "eye"
+        eyeButton.setImage(UIImage(systemName: eyeIcon), for: .normal)
     }
 
     func enableDisableButton() {
