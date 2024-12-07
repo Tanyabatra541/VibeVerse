@@ -29,7 +29,7 @@ class CommunityUsersViewController: UIViewController, UITableViewDelegate, UITab
         setupUI()
         backButton.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
         
-        // Fetch users who joined the community
+        // Fetch users who joined the community, excluding the logged-in user
         fetchUsersInCommunity()
     }
     
@@ -76,6 +76,7 @@ class CommunityUsersViewController: UIViewController, UITableViewDelegate, UITab
     
     // MARK: - Fetch Users in the Community
     private func fetchUsersInCommunity() {
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
         let db = Firestore.firestore()
         
         db.collection("users")
@@ -89,7 +90,9 @@ class CommunityUsersViewController: UIViewController, UITableViewDelegate, UITab
                 }
                 
                 self.users = snapshot?.documents.compactMap { document in
-                    return UsersModel(dictionary: document.data())
+                    let user = UsersModel(dictionary: document.data())
+                    // Exclude the logged-in user
+                    return user?.id != currentUserId ? user : nil
                 } ?? []
                 
                 DispatchQueue.main.async {

@@ -221,8 +221,11 @@ class HomeViewController: BaseViewController {
     }
 
     @objc func handleSeeMoreUsers() {
-        self.navigationController?.pushViewController(AllUsersViewController(users: users), animated: true)
+        let allUsersVC = AllUsersViewController(users: users) // 'users' is already filtered
+        self.navigationController?.pushViewController(allUsersVC, animated: true)
     }
+
+
 
     @objc func handleCommunityCardTapped() {
         let communityUsersVC = CommunityUsersViewController(communityTitle: communityTitleLabel.text ?? "")
@@ -263,16 +266,30 @@ extension HomeViewController {
     func fetchUsers(completion: @escaping (Result<[UsersModel], Error>) -> Void) {
         let db = Firestore.firestore()
         self.showLoader()
-        
-        db.collection("users").getDocuments { (snapshot, error) in
+
+        guard let currentUserId = Auth.auth().currentUser?.uid else {
+            self.hideLoader()
+            completion(.failure(NSError(domain: "No current user found", code: 401, userInfo: nil)))
+            return
+        }
+
+        db.collection("users").getDocuments { snapshot, error in
+            self.hideLoader()
             if let error = error {
                 completion(.failure(error))
             } else if let documents = snapshot?.documents {
-                let users = documents.compactMap { UsersModel(dictionary: $0.data()) }
-                completion(.success(users))
+                var filteredUsers: [UsersModel] = []
+                for doc in documents {
+                    if let user = UsersModel(dictionary: doc.data()), user.id != currentUserId {
+                        filteredUsers.append(user)
+                    }
+                }
+                completion(.success(filteredUsers))
             } else {
                 completion(.failure(NSError(domain: "No users found", code: 404, userInfo: nil)))
             }
         }
     }
+
+
 }
