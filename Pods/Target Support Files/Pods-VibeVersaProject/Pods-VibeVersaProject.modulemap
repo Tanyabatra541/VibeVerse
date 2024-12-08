@@ -1,0 +1,6 @@
+framework module Pods_VibeVersaProject {
+  umbrella header "Pods-VibeVersaProject-umbrella.h"
+
+  export *
+  module * { export * }
+}
